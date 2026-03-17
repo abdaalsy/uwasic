@@ -11,7 +11,7 @@ constexpr double b{-5.81818};
 constexpr double c{4.24242};
 
 constexpr int fractional_bits_8{4};
-constexpr int fractional_bits_16{11};
+constexpr int fractional_bits_16{12};
 
 int main() {
     std::random_device rd;  
