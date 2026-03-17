@@ -37,7 +37,8 @@ int main() {
         double reciprocal{a*random_val*random_val + b*random_val + c};
         double bits_precise{-1.0*std::log2(std::abs(reciprocal - reciprocal_fixed.to_double()))};
         std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << std::endl;
-    } 
+    }
+    std::cout << std::endl;
     std::cout << "----- End 8-Bit Test------" << std::endl;
     std::cout << "----- Start 16-Bit Test------" << std::endl;
     constexpr FixedPoint<std::int16_t, fractional_bits_16> a_16{a};
@@ -54,6 +55,7 @@ int main() {
         double reciprocal{a*random_val*random_val + b*random_val + c};
         double bits_precise{-1.0*std::log2(std::abs(reciprocal - reciprocal_fixed.to_double()))};
         std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << std::endl;
-    }  
+    }
+    std::cout << std::endl;
     std::cout << "----- End 16-Bit Test------" << std::endl;
 }
