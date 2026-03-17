@@ -34,9 +34,10 @@ int main() {
         double random_val = dis(gen);
         FixedPoint<std::int8_t, fractional_bits_8> rand_fixed{random_val};
         FixedPoint<std::int8_t, fractional_bits_8> reciprocal_fixed = a_8*rand_fixed*rand_fixed + b_8*rand_fixed + c_8;
-        double reciprocal{a*random_val*random_val + b*random_val + c};
+        double reciprocal{a*rand_fixed.to_double()*rand_fixed.to_double() + b*rand_fixed.to_double() + c};
         double bits_precise{-1.0*std::log2(std::abs(reciprocal - reciprocal_fixed.to_double()))};
-        std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << std::endl;
+        double relative_error{std::abs(reciprocal - reciprocal_fixed.to_double()) / reciprocal_fixed.to_double()};
+        std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << ", Relative error: " << relative_error << std::endl;
     }
     std::cout << std::endl;
     std::cout << "----- End 8-Bit Test------" << std::endl;
@@ -52,9 +53,10 @@ int main() {
         double random_val = dis(gen);
         FixedPoint<std::int16_t, fractional_bits_16> rand_fixed{random_val};
         FixedPoint<std::int16_t, fractional_bits_16> reciprocal_fixed = a_16*rand_fixed*rand_fixed + b_16*rand_fixed + c_16;
-        double reciprocal{a*random_val*random_val + b*random_val + c};
+        double reciprocal{a*rand_fixed.to_double()*rand_fixed.to_double() + b*rand_fixed.to_double() + c};
         double bits_precise{-1.0*std::log2(std::abs(reciprocal - reciprocal_fixed.to_double()))};
-        std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << std::endl;
+        double relative_error{std::abs(reciprocal - reciprocal_fixed.to_double()) / reciprocal_fixed.to_double()};
+        std::cout << "Reciprocal (double): " << reciprocal << ", " << "Reciprocal (fixed-point): " << reciprocal_fixed.to_double() << ", Bits of precision retained: " << bits_precise << ", Relative error: " << relative_error << std::endl;
     }
     std::cout << std::endl;
     std::cout << "----- End 16-Bit Test------" << std::endl;
