@@ -1,4 +1,5 @@
 #include <cstdint>
+#pragma once
 // This is a script to test out the Newton-Raphson method's convergence, at different bit widths and decimal point placements
 // https://www.researchgate.net/publication/220804890_An_Efficient_Hardware_Implementation_for_a_Reciprocal_Unit
 // The article above states that the NR method doubles its precision every iteration
@@ -18,14 +19,14 @@ struct FixedPoint {
         return static_cast<double>(raw) / (1LL << fractional_bits);
     }
     FixedPoint operator+(const FixedPoint& right) const  {
-        return FixedPoint<T, fractional_bits>(raw + right.raw);   
+        return FixedPoint<T, fractional_bits>(static_cast<T>(raw + right.raw));   
     }
     FixedPoint& operator+=(const FixedPoint& right) {
         *this = (*this) + right;
         return *this;
     }
     FixedPoint operator-(const FixedPoint& right) const {
-        return FixedPoint<T, fractional_bits>(raw - right.raw);
+        return FixedPoint<T, fractional_bits>(static_cast<T>(raw - right.raw));
     }
     FixedPoint& operator-=(const FixedPoint& right) {
         *this = (*this) - right;
@@ -46,5 +47,5 @@ private:
     // Generate a fixed point number from another fixed point number (for doing math)
     // Private because inputting the number 10 expecting 10.0 can cause the raw to be 10 instead
     constexpr FixedPoint(T r) { raw = r; }
-}
+};
 
