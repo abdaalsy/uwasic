@@ -1,33 +1,20 @@
-#include <iostream>
-#include "vec3.h"
-#include "color.h"
-#include "ray.h"
+#include "rtweekend.h"
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-double hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc{center - r.origin()};
-    auto a{r.direction().length_squared()};
-    auto h{dot(r.direction(), oc)};
-    auto c{oc.length_squared() - radius*radius};
-    auto discriminant{h*h - a*c};
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (h - std::sqrt(discriminant)) / a;
+color ray_color(const ray& r, const hittable& world) {
+    // World should be a hittable_list, but because it inherits from hittable its also a hittable
+    hit_record rec; // Each ray should have a hit record for a bounce
+    // If we hit literally anything we color it with the shading based on the object we hit, thats what the hit method of world should return.
+    if (world.hit(r, interval(0, infinity), rec)) {
+        return 0.5 * (rec.normal + color(1, 1, 1)); // This is teh same formula we used earlier to get the shading
     }
-}
-
-color ray_color(const ray& r) {
-    auto t{hit_sphere(point3(0, 0, -1), 0.5, r)};
-    // Gradient if it didn't hit the sphere
-    if (t < 0.0) {
-        vec3 unit_direction{unit_vector(r.direction())};
-        auto a{0.5*(unit_direction.y() + 1.0)};
-        return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
-    } else {
-        vec3 surface_normal{unit_vector(r.at(t) - vec3(0, 0, -1))};
-        return 0.5*color(surface_normal.x()+1, surface_normal.y()+1, surface_normal.z()+1);
-    }
+    
+    // Draw the gradient if no hit
+    vec3 unit_direction{unit_vector(r.direction())};
+    auto a{0.5*(unit_direction.y() + 1)}; // normalize our y to [0, 1]
+    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // Linear interpolation formula
 }
 
 int main() {
@@ -40,6 +27,13 @@ int main() {
     // Calculate the image height, and ensure that it's at least 1.
     int image_height = int(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    // World
+
+    hittable_list world;
+
+    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100)); // far down sphere with a big radius will resemble ground, all normals should pretty much point straight up
 
     // Camera
 
@@ -72,7 +66,7 @@ int main() {
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }

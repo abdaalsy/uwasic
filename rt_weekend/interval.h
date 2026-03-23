@@ -1,0 +1,28 @@
+#pragma once
+
+class interval {
+public:
+    double min, max;
+
+    interval() : min(+infinity), max(-infinity) {}
+
+    interval(double min, double max) : min(min), max(max) {}
+
+    double size() const {
+        return max - min;
+    }
+
+    bool contains(double x) const {
+        return min <= x && x <= max;
+    }
+
+    bool surrounds(double x) const {
+        return min < x && x < max; // same thing as contains except x cannot be at the boundaries
+    }
+
+    static const interval empty, universe;
+};
+
+// Defining the class variables that will be available to all instances instead of having to always define it ourselves.
+const interval interval::empty   = interval(+infinity, -infinity);
+const interval interval::universe= interval(-infinity, +infinity);
