@@ -1,11 +1,13 @@
 #pragma once
 // Gonna create an abstract class for anything a ray can hit, that'll let us use the same interface for many different types of objects
 
+class material;
 
 class hit_record {
 public:
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat;
     double t;
     bool front_face; // normal will always point out, so use this flag to know whether this hit record is for the back side, or the front side. Then at color time, we can invert the normal vector if its the back face
 

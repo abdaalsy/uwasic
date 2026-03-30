@@ -6,6 +6,7 @@
 // We'll let the render function call the initialize function instaed of us calling it ourselves
 
 #include "hittable.h"
+#include "material.h"
 
 class camera {
 public:
@@ -94,14 +95,13 @@ private:
             return color(0, 0, 0);
         }
         hit_record rec;
-        // ignore hits that happened really quick
-        // FP rounding error might cause us to cast a new ray from under the surface
-        // That ray is gonna hit the surface again, and loop
-        // This creates a bunch of dark spots from hitting the max depth
         if (world.hit(r, interval(0.001, infinity), rec)) {
-            vec3 direction{rec.normal+random_unit_vector()};
-            // Subsequent reflections matter less and less for colour
-            return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+                return attenuation * ray_color(scattered, depth-1, world);
+            }
+            return color(0, 0, 0);
         }
         // Draw the gradient if no hit
         vec3 unit_direction{unit_vector(r.direction())};
