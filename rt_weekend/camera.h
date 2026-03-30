@@ -12,6 +12,7 @@ public:
     double aspect_ratio{1.0};
     int image_width{100};
     int samples_per_pixel{10};
+    int max_depth{10};
 
     void render(const hittable& world) {
         initialize();
@@ -24,7 +25,7 @@ public:
                 color pixel_color(0,0,0);
                 for (int sample = 0; sample < samples_per_pixel; sample++) {
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_depth, world);
                 }
                 write_color(std::cout, pixel_samples_scale * pixel_color);
             }
@@ -88,17 +89,23 @@ private:
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    color ray_color(const ray&r, const hittable& world) const {
-    // World should be a hittable_list, but because it inherits from hittable its also a hittable
-    hit_record rec; // Each ray should have a hit record for a bounce
-    // If we hit literally anything we color it with the shading based on the object we hit, thats what the hit method of world should return.
-    if (world.hit(r, interval(0, infinity), rec)) {
-        return 0.5 * (rec.normal + color(1, 1, 1)); // This is teh same formula we used earlier to get the shading
-    }
-    // Draw the gradient if no hit
-    vec3 unit_direction{unit_vector(r.direction())};
-    auto a{0.5*(unit_direction.y() + 1)}; // normalize our y to [0, 1]
-    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // Linear interpolation formula
-
+    color ray_color(const ray&r, int depth, const hittable& world) const {
+        if (depth <= 0) {
+            return color(0, 0, 0);
+        }
+        hit_record rec;
+        // ignore hits that happened really quick
+        // FP rounding error might cause us to cast a new ray from under the surface
+        // That ray is gonna hit the surface again, and loop
+        // This creates a bunch of dark spots from hitting the max depth
+        if (world.hit(r, interval(0.001, infinity), rec)) {
+            vec3 direction{rec.normal+random_unit_vector()};
+            // Subsequent reflections matter less and less for colour
+            return 0.5 * ray_color(ray(rec.p, direction), depth-1, world);
+        }
+        // Draw the gradient if no hit
+        vec3 unit_direction{unit_vector(r.direction())};
+        auto a{0.5*(unit_direction.y() + 1)};
+        return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); 
     }
 };

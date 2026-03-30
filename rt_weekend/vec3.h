@@ -40,6 +40,14 @@ class vec3 {
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
+
+    static vec3 random() {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    static vec3 random(double min, double max) {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    }
 };
 
 // point3 is just an alias for vec3, but useful for geometric clarity in the code.
@@ -90,4 +98,27 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 
 inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
+}
+
+inline vec3 random_unit_vector() {
+    // rejection method
+    while (true) {
+        auto p{vec3::random(-1, 1)};
+        auto lensq{p.length_squared()};
+        // if our length squared is less than 1e-160, squaring it will round to 0
+        // generate a new random vector in that case
+        if (1e-160 < lensq && lensq <= 1) {
+            return p / sqrt(lensq); // divide by magnitude to get unit length
+        }
+    }
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal) {
+    // Check if our random vector lies on the hemisphere of our normal vector, if not then inverting it is enough to guarantee it is
+    vec3 on_unit_sphere{random_unit_vector()};
+    if (dot(normal, on_unit_sphere) > 0.0) {
+        return on_unit_sphere;
+    } else {
+        return -on_unit_sphere;
+    }
 }
